@@ -24,7 +24,7 @@ const MapToggle = () => {
       <div style={{ marginBottom: '24px' }}>
    
       </div>
-      <FlashingStatesMap  />
+      <ExactLocationMapNew />
     </div>
   );
 };
