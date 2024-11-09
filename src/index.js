@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 
 
-import ExactLocationMap from "./Exact_location_geojson_svg.js";
+// import ExactLocationMap from "./Exact_location_geojson_svg.js";
 import ExactLocationMapNew from "./Exact_location_topojson_canvas_2.js";
 
 import FlashingStatesMap from "./flashingStatesMap.js"; 

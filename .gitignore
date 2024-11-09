@@ -7,7 +7,7 @@
 
 /src/data/data_with_post_office.json
 /src/data/grouped_trades_final_1.json
-/src/exact_location_geojson_svg.json
+/src/Exact_location_geojson_svg.json
 /src/Exact_location_topojson_canvas_2.json
 # testing
 /coverage
