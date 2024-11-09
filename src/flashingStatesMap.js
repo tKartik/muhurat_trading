@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { select, geoPath, geoMercator, geoCentroid, color } from 'd3';
 import boundaryData from './data/IndianStateBoundary.json';
-import tradeData from './data/data_with_post_office.json';
 
 const FlashingStatesMap = () => {
   const svgRef = useRef(null);
@@ -56,11 +55,6 @@ const FlashingStatesMap = () => {
       .attr("id", d => d.properties.st_nm.replace(/\s+/g, '-')) // Replace spaces with hyphens
       .attr("class", "state");
 
-    // Set up time variables
-    const startTime = Math.min(...tradeData.map(trade => new Date(trade.exchange_update_time).getTime()));
-    const endTime = Math.max(...tradeData.map(trade => new Date(trade.exchange_update_time).getTime()));
-    let currentTime = startTime;
-
     // Display current time
     const timeDisplay = svg.append("text")
       .attr("x", 20)
@@ -68,33 +62,36 @@ const FlashingStatesMap = () => {
       .attr("font-size", "24px")
       .attr("fill", "white");
 
-      const stateFlashCounts = {};
+    const stateFlashCounts = {};
+    const stateNames = boundaryData.features.map(feature => 
+      feature.properties.st_nm.replace(/\s+/g, '-')
+    );
 
-    // Update function to flash states for each second
-    const updateTrades = () => {
-      // Display current time
-      const currentDate = new Date(currentTime);
-      const timeString = currentDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'UTC'});
+    // Replace updateTrades function with random flashing
+    const updateStates = () => {
+      // Update time display
+      const currentDate = new Date();
+      const timeString = currentDate.toLocaleTimeString([], { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit' 
+      });
       timeDisplay.text(`Time: ${timeString}`);
 
-      // Flash states for trades occurring at the current time
-      tradeData.forEach(trade => {
-        const tradeTime = new Date(trade.exchange_update_time).getTime();
-        if (tradeTime === currentTime) {
-          flashState(trade);
-        }
-      });
-
-      // Increment time by 1 second
-      currentTime += 1000;
-
-      // Stop updating once we reach the end time
-      if (currentTime > endTime) {
-        clearInterval(timeInterval);
+      // Randomly select 1-3 states to flash
+      const numberOfStates = Math.floor(Math.random() * 3) + 1;
+      for (let i = 0; i < numberOfStates; i++) {
+        const randomState = stateNames[Math.floor(Math.random() * stateNames.length)];
+        const randomType = Math.random() > 0.5 ? 'B' : 'S';
+        flashState({ 
+          PostOffice: { State: randomState.replace(/-/g, ' ') },
+          buy_sell: randomType
+        });
       }
     };
 
-    const timeInterval = setInterval(updateTrades, 100); // Update every second
+    // Update interval to run faster (e.g., every 500ms)
+    const timeInterval = setInterval(updateStates, 500);
 
     const flashState = (trade) => {
       const stateName = trade.PostOffice?.State;
