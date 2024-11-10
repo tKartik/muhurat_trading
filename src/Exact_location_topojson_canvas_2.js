@@ -124,8 +124,11 @@ const ExactLocationMapNew = () => {
       .text(new Date(endTime).toLocaleTimeString([], { 
         hour: 'numeric',
         minute: '2-digit',
+        second: '2-digit', 
         hour12: true
       }));
+
+
 
     // Group trades by minute for histogram
     const tradesByMinute = {};
@@ -169,7 +172,7 @@ const ExactLocationMapNew = () => {
       activeCircles.current = [...activeCircles.current, ...newCircles];
 
       // Reduce total animation duration (currently 30 seconds)
-      const totalDuration = 9000;  // Change to 2 seconds
+      const totalDuration = 12000;  // Change to 2 seconds
       const displayDuration = 0;
       const initialRadius = 3;     // Smaller radius = less pixels to render
       
@@ -206,25 +209,6 @@ const ExactLocationMapNew = () => {
               2 * Math.PI
             );
             ctx.fill();
-
-            // // Draw shadow layers to create spread effect
-            // ctx.shadowColor = '#FAB726';
-            // ctx.shadowBlur = 6;
-            // ctx.shadowOffsetX = 0;
-            // ctx.shadowOffsetY = 0;
-            
-            // // Draw multiple times to create spread effect
-            // for(let i = 0; i < 3; i++) {
-            //   ctx.beginPath();
-            //   ctx.arc(
-            //     circle.coordinates[0], 
-            //     circle.coordinates[1], 
-            //     currentRadius + i, // Incrementally larger circles for spread
-            //     0, 
-            //     2 * Math.PI
-            //   );
-            //   ctx.fill();
-            // }
 
           }
           
