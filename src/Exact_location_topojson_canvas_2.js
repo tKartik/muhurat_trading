@@ -31,7 +31,7 @@ const ExactLocationMapNew = () => {
     const width = wrapperRef.current.clientWidth;
     const padding = 0.15;
     const timelineHeight = 100;
-    const spacingFromMap = 60;
+    const spacingFromMap = 30;
     const maxBarHeight = 50;
 
     // Calculate the padded dimensions
@@ -78,10 +78,11 @@ const ExactLocationMapNew = () => {
     const mapBBox = mapGroup.node().getBBox();
     const timelineWidth = mapBBox.width;
     const timelineX = (width - timelineWidth) / 2;
+    const histogramPadding = 2;
 
-    // Calculate total minutes and bar width
+    // Calculate total minutes and bar width (adjusted for padding)
     const totalMinutes = Math.ceil((endTime - startTime) / 60000);
-    const barWidth = timelineWidth / totalMinutes;
+    const barWidth = (timelineWidth - (2 * histogramPadding)) / totalMinutes;  // Adjust bar width for padding
 
     // Create timeline group
     const timelineGroup = svg.append("g")
@@ -101,22 +102,22 @@ const ExactLocationMapNew = () => {
       .attr("fill", "#FFFFFF")
       .attr("rx", 4);
 
-    // Add time labels
-    timelineGroup.append("text")
-      .attr("x", 0)
-      .attr("y", 20)
+    // Create a separate group for the histogram bars (behind the time indicator)
+    const histogramGroup = timelineGroup.append("g")
+      .attr("class", "histogram-group");
+
+    // Add time labels with adjusted spacing and padding
+    const leftTimeLabel = timelineGroup.append("text")
+      .attr("x", histogramPadding)  // Add 4px left padding
+      .attr("y", 26)
       .attr("fill", "white")
       .attr("font-size", "12px")
       .attr("text-anchor", "start")
-      .text(new Date(startTime).toLocaleTimeString([], { 
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-      }));
+
 
     timelineGroup.append("text")
-      .attr("x", timelineWidth)
-      .attr("y", 20)
+      .attr("x", timelineWidth - histogramPadding)  // Subtract 4px for right padding
+      .attr("y", 26)
       .attr("fill", "white")
       .attr("font-size", "12px")
       .attr("text-anchor", "end")
@@ -147,14 +148,23 @@ const ExactLocationMapNew = () => {
             parseFloat(location.longitude),
             parseFloat(location.latitude),
           ]);
+
+          // Check if coordinates are within the map boundaries
+          if (coordinates && 
+              coordinates[0] >= 0 && 
+              coordinates[0] <= paddedWidth && 
+              coordinates[1] >= 0 && 
+              coordinates[1] <= paddedHeight) {
+            return {
+              coordinates,
+              buy_sell,
+              startTime: performance.now(),
+            };
+          }
         }
         
-        return {
-          coordinates,
-          buy_sell,
-          startTime: performance.now(),
-        };
-      });
+        return null;
+      }).filter(circle => circle !== null);  // Remove null entries
       
       activeCircles.current = [...activeCircles.current, ...newCircles];
 
@@ -237,6 +247,14 @@ const ExactLocationMapNew = () => {
       const progress = (currentTime - startTime) / (endTime - startTime);
       progressBar.attr("width", timelineWidth * progress);
 
+      // Update the left time label with current time
+      leftTimeLabel.text(currentDate.toLocaleTimeString([], { 
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      }));
+
       // Calculate which minute we're currently in
       const currentMinute = Math.floor(currentTime / 60000) * 60000;
       
@@ -245,12 +263,13 @@ const ExactLocationMapNew = () => {
       
       if (trades > 0) {
         const barHeight = (trades / maxTradesPerMinute) * maxBarHeight;
-        const minutePosition = ((currentMinute - startTime) / (endTime - startTime)) * timelineWidth;
+        const minutePosition = ((currentMinute - startTime) / (endTime - startTime)) * 
+          (timelineWidth - (2 * histogramPadding)) + histogramPadding;  // Add padding to position
         
-        timelineGroup.append("rect")
+        histogramGroup.append("rect")
           .attr("x", minutePosition)
-          .attr("y", -barHeight)
-          .attr("width", Math.max(1, barWidth - 1))  // Ensure minimum width of 1px
+          .attr("y", -barHeight-4)
+          .attr("width", Math.max(1, barWidth - 1))
           .attr("height", barHeight)
           .attr("fill", "#565656")
           .attr("opacity", 0)

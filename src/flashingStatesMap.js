@@ -62,7 +62,6 @@ const FlashingStatesMap = () => {
       .attr("font-size", "24px")
       .attr("fill", "white");
 
-    const stateFlashCounts = {};
     const stateNames = boundaryData.features.map(feature => 
       feature.properties.st_nm.replace(/\s+/g, '-')
     );
@@ -104,28 +103,16 @@ const FlashingStatesMap = () => {
       const statePath = svg.select(`#${formattedStateName}`);
 
       if (statePath) {
-        const flashColor = trade.buy_sell === 'B' ? '#F4F67E' : '#FA7F26';
-
- // Increment overlap count for the state
- stateFlashCounts[formattedStateName] = (stateFlashCounts[formattedStateName] || 0) + 1;
-
-console.log(stateFlashCounts[formattedStateName], formattedStateName);
-
- // Adjust color intensity based on overlap count
- const intensityFactor = Math.min(stateFlashCounts[formattedStateName], 5); // Cap intensity at 5 for visibility
- const adjustedColor = color(flashColor).darker(intensityFactor * 0.2).formatHex();
-
-
         statePath
-          .style("mix-blend-mode", "normal") // Set blend mode to screen
+          .style("mix-blend-mode", "normal")
           .transition()
           .duration(500)
-          .attr("fill", adjustedColor)
+          .attr("fill", "#FFFFFF")  // Simple white color
           .on("end", () => {
-            // Decrement overlap count after flash ends
-            stateFlashCounts[formattedStateName] = Math.max(stateFlashCounts[formattedStateName] - 1, 0);
-            statePath.transition().duration(500).attr("fill", "#262626").style("mix-blend-mode", "normal");
-            console.log( formattedStateName,stateFlashCounts[formattedStateName]);
+            statePath.transition()
+              .duration(500)
+              .attr("fill", "#262626")
+              .style("mix-blend-mode", "normal");
           });
       }
     };
