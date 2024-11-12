@@ -8,6 +8,8 @@ const ExactLocationMapNew = () => {
   const svgRef = useRef(null);
   const wrapperRef = useRef(null);
   const activeCircles = useRef([]);
+  const counterRef = useRef(null);
+  const animationFrameId = useRef(null);
 
   useEffect(() => {
     if (!svgRef.current || !wrapperRef.current) return;
@@ -141,6 +143,11 @@ const ExactLocationMapNew = () => {
     const maxTradesPerMinute = Math.max(...Object.values(tradesByMinute));
 
     const renderCircles = (trades) => {
+      // Create a density map using a grid system
+      const gridSize = 16; // Size of each grid cell in pixels
+      const densityMap = new Map();
+      const densityThreshold = 9; // Maximum number of points per grid cell
+
       // Pre-calculate coordinates and add them to the circle data
       const newCircles = trades.map(trade => {
         const { location, buy_sell } = trade;
@@ -158,30 +165,48 @@ const ExactLocationMapNew = () => {
               coordinates[0] <= paddedWidth && 
               coordinates[1] >= 0 && 
               coordinates[1] <= paddedHeight) {
-            return {
-              coordinates,
-              buy_sell,
-              startTime: performance.now(),
-            };
+            
+            // Calculate grid cell for this point
+            const gridX = Math.floor(coordinates[0] / gridSize);
+            const gridY = Math.floor(coordinates[1] / gridSize);
+            const gridKey = `${gridX},${gridY}`;
+            
+            // Update density map
+            const currentDensity = densityMap.get(gridKey) || 0;
+            densityMap.set(gridKey, currentDensity + 1);
+            
+            // Only include point if density is below threshold
+            if (currentDensity < densityThreshold) {
+              return {
+                coordinates,
+                buy_sell,
+                startTime: performance.now(),
+              };
+            }
           }
         }
         
         return null;
-      }).filter(circle => circle !== null);  // Remove null entries
-      
+      }).filter(circle => circle !== null);
+
       activeCircles.current = [...activeCircles.current, ...newCircles];
 
-      // Reduce total animation duration (currently 30 seconds)
-      const totalDuration = 12000;  // Change to 2 seconds
-      const displayDuration = 0;
-      const initialRadius = 3;     // Smaller radius = less pixels to render
+      // Reduce total animation duration
+      const totalDuration = 7000;  
+      const displayDuration = 100;
+      const initialRadius = 2;
       
       const animate = (timestamp) => {
+        // Cancel any existing animation frame before starting new one
+        if (animationFrameId.current) {
+          cancelAnimationFrame(animationFrameId.current);
+        }
+
         ctx.clearRect(0, 0, width, totalHeight);
         
-        // Set common properties once
+        // Set common properties once outside the loop
         ctx.shadowColor = '#FAB726';
-        ctx.shadowBlur = 12;        // Reduce blur for better performance
+        ctx.shadowBlur = 8;
         ctx.globalCompositeOperation = 'screen';
         ctx.fillStyle = '#FAB726';
         
@@ -193,7 +218,7 @@ const ExactLocationMapNew = () => {
           
           let scale = 1;
           if (elapsed > displayDuration) {
-            scale = 1 - ((elapsed - displayDuration) / totalDuration); // Make sure to use totalDuration here
+            scale = 1 - ((elapsed - displayDuration) / totalDuration);
             if (scale <= 0) return false;
           }
 
@@ -209,18 +234,22 @@ const ExactLocationMapNew = () => {
               2 * Math.PI
             );
             ctx.fill();
-
           }
           
           return true;
         });
 
+        // Update counter
+        counterRef.current.text(`Active Points: ${activeCircles.current.length}`);
+
+        // Only request new frame if there are active circles
         if (activeCircles.current.length > 0) {
-          requestAnimationFrame(animate);
+          animationFrameId.current = requestAnimationFrame(animate);
         }
       };
 
-      requestAnimationFrame(animate);
+      // Start animation
+      animationFrameId.current = requestAnimationFrame(animate);
     };
 
     const updateTrades = () => {
@@ -278,7 +307,7 @@ const ExactLocationMapNew = () => {
       }
     };
 
-    const timeInterval = setInterval(updateTrades, 1000); // Update every 200ms
+    const timeInterval = setInterval(updateTrades, 200); // Update every 200ms
 
     // Add a canvas layer for circles
     const canvas = svg.append("foreignObject")
@@ -291,7 +320,26 @@ const ExactLocationMapNew = () => {
 
     const ctx = canvas.node().getContext("2d");
 
-    return () => clearInterval(timeInterval); // Clean up the interval on unmount
+    // Add counter text to SVG
+    const counter = svg.append("text")
+      .attr("x", width - 20)
+      .attr("y", 30)
+      .attr("fill", "white")
+      .attr("font-size", "14px")
+      .attr("text-anchor", "end")
+      .text("Active Points: 0");
+    
+    counterRef.current = counter;
+
+    // Clean up function
+    return () => {
+      clearInterval(timeInterval);
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+      }
+      // Clear any remaining circles
+      activeCircles.current = [];
+    };
 
   }, []);
 
