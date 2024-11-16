@@ -3,10 +3,10 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 
 
-import ExactLocationMap from "./Final_timeline.js";
-import ExactLocationMapNew from "./video.js";
+import ExactLocationMap from "../src/Final_timeline.js";
+import ExactLocationMapNew from "../src/video.js";
 
-import FlashingStatesMap from "./flashingStatesMap.js"; 
+import FlashingStatesMap from "../src/flashingStatesMap.js"; 
 import WebFont from 'webfontloader';
 
 WebFont.load({
