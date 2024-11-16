@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { select, geoPath, geoMercator, geoCentroid, color } from 'd3';
-import boundaryData from './data/IndianStateBoundary.json';
+import boundaryData from './data/India ADM1.json';
 
 const FlashingStatesMap = () => {
   const svgRef = useRef(null);

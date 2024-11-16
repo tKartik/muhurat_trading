@@ -6,10 +6,14 @@
 .pnp.js
 
 /src/data/data_with_post_office.json
-/src/data/grouped_trades_final_1.json
-/src/data/IndiaSeats.json
-/src/Exact_location_geojson_svg.js
-/src/Canvas_approach_2_backup.js
+/src/data/src/data/grouped_trades_final_2_cleaned.json
+/src/data/India ADM0.json
+/src/data/India ADM1.json
+/src/svg_local_data_backup.js
+/src/svg method.js
+/src/Exact_location_topojson_canvas_2.js
+/src/Exact_location_topojson_canvas_aws.js
+/src/video.js
 
 # testing
 /coverage

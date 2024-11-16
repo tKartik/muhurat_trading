@@ -192,12 +192,11 @@ const ExactLocationMapNew = () => {
       activeCircles.current = [...activeCircles.current, ...newCircles];
 
       // Reduce total animation duration
-      const totalDuration = 7000;  
+      const totalDuration = 2000;  
       const displayDuration = 100;
-      const initialRadius = 2;
+      const initialRadius = 3;
       
       const animate = (timestamp) => {
-        // Cancel any existing animation frame before starting new one
         if (animationFrameId.current) {
           cancelAnimationFrame(animationFrameId.current);
         }
@@ -205,20 +204,22 @@ const ExactLocationMapNew = () => {
         ctx.clearRect(0, 0, width, totalHeight);
         
         // Set common properties once outside the loop
-        ctx.shadowColor = '#FAB726';
-        ctx.shadowBlur = 8;
+        ctx.shadowColor = '#FABE3A';
+        ctx.shadowBlur = 10;
         ctx.globalCompositeOperation = 'screen';
-        ctx.fillStyle = '#FAB726';
+        ctx.fillStyle = '#FABE3A';
         
-        // Batch process all circles
         activeCircles.current = activeCircles.current.filter(circle => {
           const elapsed = timestamp - circle.startTime;
           
           if (elapsed >= totalDuration || !circle.coordinates) return false;
           
           let scale = 1;
+          let opacity = 1;
           if (elapsed > displayDuration) {
-            scale = 1 - ((elapsed - displayDuration) / totalDuration);
+            const fadeProgress = (elapsed - displayDuration) / (totalDuration - displayDuration);
+            scale = 1 - fadeProgress;
+            opacity = 1 - fadeProgress; // Opacity reduces along with scale
             if (scale <= 0) return false;
           }
 
@@ -226,6 +227,7 @@ const ExactLocationMapNew = () => {
           
           if (currentRadius > 0) {
             ctx.beginPath();
+            ctx.globalAlpha = opacity; // Set opacity before drawing
             ctx.arc(
               circle.coordinates[0], 
               circle.coordinates[1], 
@@ -239,10 +241,11 @@ const ExactLocationMapNew = () => {
           return true;
         });
 
+        ctx.globalAlpha = 1; // Reset opacity after drawing all circles
+        
         // Update counter
         counterRef.current.text(`Active Points: ${activeCircles.current.length}`);
 
-        // Only request new frame if there are active circles
         if (activeCircles.current.length > 0) {
           animationFrameId.current = requestAnimationFrame(animate);
         }
@@ -307,7 +310,7 @@ const ExactLocationMapNew = () => {
       }
     };
 
-    const timeInterval = setInterval(updateTrades, 200); // Update every 200ms
+    const timeInterval = setInterval(updateTrades, 50); // Update every 200ms
 
     // Add a canvas layer for circles
     const canvas = svg.append("foreignObject")
