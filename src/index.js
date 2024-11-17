@@ -99,22 +99,24 @@ root.render(
 
       <section className="video-section">
         <h2 className="header">
-          Timelapse of the entire trading session
+          Timelapse of the entire trading se
         </h2>
         <p className="subtext">
-          To visualize density of trades in the entire session
+          To visualize density of trades in the entire sess
         </p>
         
-        <div className="video-container">
+        <div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1030502466?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="How India traded during Muhurat 2024"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>
+
+        {/* <div className="video-container">
           <iframe 
             className="video-iframe"
-            src="https://www.youtube.com/embed/f0Y3r_W85TE?si=V-i_LWbnoTB0kkRz"
+            src="https://www.youtube.com/embed/f0Y3r_W85TE?playsinline=1&modestbranding=1&rel=0"
             title="YouTube video player"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen
           />
-        </div>
+        </div> */}
       </section>
 
       

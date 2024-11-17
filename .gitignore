@@ -5,7 +5,7 @@
 /.pnp
 .pnp.js
 
-/src/data/data_with_post_office.json
+
 /src/data/grouped_trades_final_2_cleaned.json
 /src/data/India ADM0.json
 /src/data/India ADM1.json
@@ -14,6 +14,7 @@
 /src/Exact_location_topojson_canvas_2.js
 /src/Exact_location_topojson_canvas_aws.js
 /src/video.js
+/src/Timeline_backup.js
 
 # testing
 /coverage

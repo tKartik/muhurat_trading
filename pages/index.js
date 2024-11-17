@@ -60,7 +60,9 @@ export default function Home() {
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
               color: 'transparent',
-              display: 'inline-block'
+              display: 'inline-block',
+              paddingRight: '0.1em',
+              marginRight: '0.1em'
             }}>Muhurat '24</span> on Groww
           </h1>
           
@@ -83,7 +85,7 @@ export default function Home() {
                 />
               </span>
             </span>
-            {" "}, this project 
+            , this project 
             offers a visual perspective on the trades that took place during this auspicious time via{" "}
             <a 
               href="https://groww.in" 
@@ -91,7 +93,7 @@ export default function Home() {
               target="_blank" 
               rel="noopener noreferrer"
             >
-              Groww ↗︎
+              Groww↗︎
             </a>
           </p>
         </div>
@@ -106,15 +108,16 @@ export default function Home() {
             To visualize density of trades in the entire session
           </p>
           
+          
           <div className="video-container">
-            <iframe 
-              className="video-iframe"
-              src="https://www.youtube.com/embed/f0Y3r_W85TE?si=V-i_LWbnoTB0kkRz"
-              title="YouTube video player"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
-              allowFullScreen
-            />
+          <iframe 
+            className="video-iframe"
+            src="https://www.youtube.com/embed/f0Y3r_W85TE?si=V-i_LWbnoTB0kkRz?modestbranding=1&showinfo=0&rel=0"
+            title="YouTube video player"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+          />
           </div>
         </section>
 
@@ -122,7 +125,7 @@ export default function Home() {
           width: '90vw',
           height: '1px',
           backgroundColor: 'rgba(255, 255, 255, 0.1)',
-          margin: '0 auto'
+          margin: '2rem auto'
         }} />
 
         <footer style={{ 

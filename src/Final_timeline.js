@@ -391,16 +391,30 @@ const ExactLocationMap = () => {
       .on("drag", function(event) {
         event.sourceEvent.stopPropagation();
         const position = Math.max(0, Math.min(event.x, timelineWidth));
-        // Update visuals during drag
+        // Only update visuals during drag
         updateVisuals(position);
       })
       .on("end", function(event) {
         handle.attr("fill", "#FFFFFF");
         const position = Math.max(0, Math.min(event.x, timelineWidth));
+        
         // Cancel any pending updates
         debouncedUpdate.cancel?.();
-        // Use debouncedUpdate for data update
-        debouncedUpdate(position);
+        
+        // Calculate time based on position
+        const clickPosition = position / timelineWidth;
+        const clickedTime = startTime + (endTime - startTime) * clickPosition;
+        
+        // Find nearest timestamp
+        const nearestTime = timeKeys.reduce((prev, curr) => {
+          return Math.abs(curr - clickedTime) < Math.abs(prev - clickedTime) ? curr : prev;
+        });
+
+        // Batch state updates together
+        React.startTransition(() => {
+          setCurrentPosition(position);
+          setCurrentTimeState(nearestTime);
+        });
       });
 
     // Update the timeline click behavior
@@ -432,12 +446,12 @@ const ExactLocationMap = () => {
 
     // Add legend to mapGroup
     const legendGroup = mapGroup.append("g")
-      .attr("transform", `translate(${paddedWidth - 180}, 20)`);
+      .attr("transform", `translate(${paddedWidth - 180}, 0)`);
 
     // Add background for legend - adjust height since layout is now more compact
     legendGroup.append("rect")
-      .attr("width", 160)
-      .attr("height", 160) // Reduced height
+      .attr("width", 180)
+      .attr("height", 170) // Reduced height
       .attr("fill", "#0F0F15")
       .attr("rx", 20)
       // .attr("stroke", "#2D2D64")
@@ -463,6 +477,7 @@ const ExactLocationMap = () => {
         .attr("x", 15)
         .attr("y", 4)
         .attr("fill", "white")
+        .attr("opacity", 0.8)
         .attr("font-size", "12px")
         .attr("font-family", "Inter, sans-serif")
         .text(item.label);
@@ -476,29 +491,30 @@ const ExactLocationMap = () => {
     ];
 
     legendGroup.append("text")
-      .attr("x", 25)
+      .attr("x", 23)
       .attr("y", 90)
       .attr("fill", "white")
-      .attr("font-size", "14px")
+      .attr("font-size", "13px")
       .attr("font-family", "Inter, sans-serif")
       .text("Trade Amount");
 
     sizeLegend.forEach((item, i) => {
       const g = legendGroup.append("g")
-        .attr("transform", `translate(${41 + i * 50}, 113)`); // Horizontal spacing
+        .attr("transform", `translate(${39 + i * 50}, 116)`); // Horizontal spacing
 
       g.append("circle")
         .attr("r", item.size)
         .attr("fill", "#FAB726")
-        .attr("opacity", 1);
+        .attr("opacity", 0.8);
 
       g.append("text")
         .attr("x", 0)
-        .attr("y", 28) // Position text below circle
+        .attr("y", 31) // Position text below circle
         .attr("text-anchor", "middle") // Center text under circle
         .attr("fill", "white")
         .attr("font-size", "11px")
         .attr("font-family", "Inter, sans-serif")
+        .attr("opacity", 0.8)
         .text(item.label);
     });
 

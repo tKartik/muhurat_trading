@@ -88,9 +88,10 @@ code {
 }
 
 .video-section {
-  margin: 4rem auto;
+  margin: 4rem 0 6rem 0 ;
   text-align: center;
-  position: 'relative';
+  max-width: 1260px;
+  padding: 0 20px;
 }
 
 .header {
@@ -108,17 +109,16 @@ code {
   font-size: clamp(1.2rem, 1.2vw, 1.125rem);
   line-height: 1.6;
   color: #ffffff;
-  opacity: 0.8;
   max-width: 800px;
   margin: 0 auto 2.5rem;
 }
 
 .video-container {
-  position: relative;  /* Changed from 'relative' */
-  width: 100%;        /* Changed from '100%' */
-  max-width: 960px;
-  height: calc(960px * 0.5625);
-  max-height: calc(100vw * 0.5625);
+  position: relative;
+  width: 100%;
+  max-width: 1260px;
+  aspect-ratio: 16 / 9;
+  background: #000;
   margin: 0 auto;
 }
 
@@ -130,6 +130,7 @@ code {
   height: 100%;
   border: none;
 }
+
 
 /* Add these styles for the profile image hover effect */
 .profile-image {
