@@ -8,26 +8,17 @@
     "@testing-library/user-event": "^13.5.0",
     "d3": "^7.9.0",
     "firebase": "^11.0.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-scripts": "5.0.1",
-    "regl": "^2.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "next": "^14.1.0",
     "topojson-client": "^3.1.0",
-    "web-vitals": "^2.1.4",
     "webfontloader": "^1.6.28",
-    "next": "^13.0.0"
+    "axios": "^1.6.2"
   },
   "scripts": {
-    "start": "react-scripts start --max_old_space_size=4096",
-    "build": "NODE_OPTIONS='--max-old-space-size=4096' next build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   },
   "browserslist": {
     "production": [

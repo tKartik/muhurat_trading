@@ -130,3 +130,15 @@ code {
   height: 100%;
   border: none;
 }
+
+/* Add these styles for the profile image hover effect */
+.profile-image {
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  filter: grayscale(100%);
+  transition: all 0.8s ease;
+}
+
+.profile-image:hover {
+  filter: grayscale(0%);
+}

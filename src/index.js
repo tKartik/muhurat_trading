@@ -78,7 +78,7 @@ root.render(
             Diwali image of NASA
             <span className="diwali-popup">
               <img 
-                src={require('./data/diwali.png')} 
+                src="/images/diwali.png"
                 alt="NASA Diwali image"
               />
             </span>
@@ -136,7 +136,7 @@ root.render(
         gap: '20px'
       }}>
         <img 
-          src={require('./data/profile.png')} 
+          src="/images/profile.png"
           alt="Kartik Tyagi" 
           style={{
             width: '72px',
