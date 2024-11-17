@@ -21,20 +21,22 @@ const ExactLocationMap = () => {
     const startTime = parseInt(timeKeys[0]);
     const endTime = parseInt(timeKeys[timeKeys.length - 1]);
 
-    // Find first timestamp with trades
-    if (!currentPosition && timeKeys.length > 0) {
-      const firstTradeTime = timeKeys.find(time => tradeData[time] && tradeData[time].length > 0);
+    if (!currentPosition) {
       const width = wrapperRef.current.clientWidth;
       const padding = 0.15;
       const paddedWidth = width * (1 - padding);
       const timelineWidth = paddedWidth;
       
-      // Calculate initial position based on first trade
-      const initialPosition = ((firstTradeTime - startTime) / (endTime - startTime)) * timelineWidth;
+      // Get a random timestamp
+      const randomIndex = Math.floor(Math.random() * timeKeys.length);
+      const randomTime = timeKeys[randomIndex];
+      
+      // Calculate position based on random time
+      const initialPosition = ((randomTime - startTime) / (endTime - startTime)) * timelineWidth;
       
       // Set initial states
       setCurrentPosition(initialPosition);
-      setCurrentTimeState(firstTradeTime);
+      setCurrentTimeState(randomTime);
     }
   }, []); // Run once on mount
 
