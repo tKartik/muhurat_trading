@@ -3,7 +3,7 @@ import { select, geoPath, geoMercator, geoCentroid, pointer } from 'd3';
 import { feature } from 'topojson-client';
 import boundaryData from './data/India ADM1 GeoBoundaries.json';
 
-import tradeData from './data/grouped_trades_final_2.json';
+import tradeData from './data/grouped_trades_final_3.json';
 import * as d3 from 'd3';
 
 const ExactLocationMap = () => {
@@ -137,13 +137,13 @@ const ExactLocationMap = () => {
     const circlesGroup = mapGroup.append("g")
       .attr("class", "circles-group");
 
-    // Comment out or remove tooltip creation
-    /*
+    // Add tooltip div - make sure it's added to the wrapper
     const tooltip = select(wrapperRef.current)
       .append("div")
-      .attr("class", "absolute hidden")
+      .attr("class", "tooltip")
       .style("position", "fixed")
-      .style("background-color", "rgba(10, 9, 48, 0.95)")
+      .style("visibility", "hidden")
+      .style("background-color", "rgba(2, 2, 10, 0.95)")
       .style("color", "white")
       .style("padding", "8px 12px")
       .style("border-radius", "6px")
@@ -153,9 +153,82 @@ const ExactLocationMap = () => {
       .style("font-family", "Inter, sans-serif")
       .style("border", "1px solid #2D2D64")
       .style("box-shadow", "0 4px 6px rgba(0, 0, 0, 0.3)")
-      .style("transform", "translate(-50%, -100%)")  // Center horizontally and position above cursor
-      .style("margin-top", "-10px");  // Add some space between tooltip and cursor
-    */
+      .style("transform", "translate(-50%, -100%)")
+      .style("margin-top", "-10px");
+
+    // Add hover interactions to districts
+    pathsGroup.selectAll("path")
+      .data(geojson.features)
+      .enter()
+      .append("path")
+      .attr("d", pathGenerator)
+      .attr("fill", "#0A0930")
+      .attr("stroke", "#2D2D64")
+      .attr("stroke-width", 0.5)
+      .attr("class", "district")
+      .attr("id", d => d.properties.shapeName)
+      .style("cursor", "pointer")
+      .on("mouseover", function(event, d) {
+        console.log('Hovering over district:', d.properties.shapeName); // Debug log
+        
+        // Highlight the district
+        select(this)
+          .transition()
+          .duration(200)
+          .attr("fill", "#161552");
+
+        if (currentTimeState && tradeData[currentTimeState]) {
+          // Count trades for this district
+          const districtTrades = tradeData[currentTimeState].filter(trade => 
+            trade.location && trade.location.region === d.properties.shapeName
+          );
+
+          const buyTrades = districtTrades.filter(trade => trade.buy_sell === 'B').length;
+          const sellTrades = districtTrades.filter(trade => trade.buy_sell === 'S').length;
+
+          console.log('Trade counts:', { buyTrades, sellTrades }); // Debug log
+
+          // Show tooltip regardless of trade count
+          tooltip
+            .style("visibility", "visible")
+            .html(`
+              <div style="font-weight: 500; margin-bottom: 4px;">${d.properties.shapeName}</div>
+              <div style="display: flex; justify-content: space-between; gap: 16px;">
+                <span style="color: #FAB726;">Buy: ${buyTrades}</span>
+                <span style="color: #AB89FE;">Sell: ${sellTrades}</span>
+              </div>
+            `);
+
+          // Position tooltip
+          const tooltipX = event.clientX;
+          const tooltipY = event.clientY;
+          
+          console.log('Tooltip position:', { tooltipX, tooltipY }); // Debug log
+
+          tooltip
+            .style("left", `${tooltipX}px`)
+            .style("top", `${tooltipY}px`);
+        }
+      })
+      .on("mousemove", function(event) {
+        tooltip
+          .style("left", `${event.clientX}px`)
+          .style("top", `${event.clientY}px`);
+      })
+      .on("mouseout", function() {
+        // Reset district color
+        select(this)
+          .transition()
+          .duration(200)
+          .attr("fill", "#0A0930");
+        
+        // Hide tooltip
+        tooltip.style("visibility", "hidden");
+      });
+
+    // Make sure the wrapper has relative positioning
+    select(wrapperRef.current)
+      .style("position", "relative");
 
     // Now render the map paths
     pathsGroup.selectAll("path")
@@ -195,7 +268,7 @@ const ExactLocationMap = () => {
     
     // Define renderCircle function
     const renderCircle = (trade) => {
-      const { location, buy_sell, amount } = trade;
+      const { location, buy_sell } = trade;
       if (location && location.latitude && location.longitude) {
         const coordinates = projection([
           parseFloat(location.longitude),
@@ -206,14 +279,8 @@ const ExactLocationMap = () => {
           // Set color based on buy/sell
           const circleColor = buy_sell === 'S' ? '#5D43E6' : '#FAB726';
 
-          // Create a log scale for radius
-          const radiusScale = d3.scaleLog()
-            .domain([1, 123499]) // Using 1 instead of 0 as log(0) is undefined
-            .range([1, 14])
-            .clamp(true); // Clamp values to the range
-
-          // Handle zero amount separately
-          const radius = amount === 0 ? 1 : radiusScale(amount);
+          // Use constant radius of 6px
+          const radius = 6;
 
           // Update the filter color for the glow based on trade type
           filter.select("feFlood")
@@ -574,7 +641,7 @@ const ExactLocationMap = () => {
         .attr("transform", `translate(${39 + i * 50}, 116)`); // Horizontal spacing
 
       g.append("circle")
-        .attr("r", item.size)
+        .attr("r", 6)
         .attr("fill", "#FAB726")
         .attr("opacity", 0.8);
 
@@ -595,6 +662,7 @@ const ExactLocationMap = () => {
       handle.on(".drag", null);
       handle.on("mouseover", null);
       handle.on("mouseout", null);
+      tooltip.remove();
     };
   }, [currentTimeState, currentPosition]); // Dependencies
 
