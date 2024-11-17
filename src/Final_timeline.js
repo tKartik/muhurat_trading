@@ -430,6 +430,78 @@ const ExactLocationMap = () => {
       debouncedUpdate(currentPosition);
     }
 
+    // Add legend to mapGroup
+    const legendGroup = mapGroup.append("g")
+      .attr("transform", `translate(${paddedWidth - 180}, 20)`);
+
+    // Add background for legend - adjust height since layout is now more compact
+    legendGroup.append("rect")
+      .attr("width", 160)
+      .attr("height", 160) // Reduced height
+      .attr("fill", "#0F0F15")
+      .attr("rx", 20)
+      // .attr("stroke", "#2D2D64")
+      // .attr("stroke-width", 1)
+      .attr("opacity", 0.9);
+
+    // Add color legend items
+    const colorLegend = [
+      { label: "Buy", color: "#FAB726" },
+      { label: "Sell", color: "#5D43E6" }
+    ];
+
+    colorLegend.forEach((item, i) => {
+      const g = legendGroup.append("g")
+        .attr("transform", `translate(30, ${30 + i * 25})`);
+
+      g.append("circle")
+        .attr("r", 6)
+        .attr("fill", item.color)
+        .attr("filter", "url(#glow)");
+
+      g.append("text")
+        .attr("x", 15)
+        .attr("y", 4)
+        .attr("fill", "white")
+        .attr("font-size", "12px")
+        .attr("font-family", "Inter, sans-serif")
+        .text(item.label);
+    });
+
+    // Add size legend
+    const sizeLegend = [
+      { label: "₹1L+", size: 14 },
+      { label: "₹10K", size: 8 },
+      { label: "₹1K", size: 4 }
+    ];
+
+    legendGroup.append("text")
+      .attr("x", 25)
+      .attr("y", 90)
+      .attr("fill", "white")
+      .attr("font-size", "14px")
+      .attr("font-family", "Inter, sans-serif")
+      .text("Trade Amount");
+
+    sizeLegend.forEach((item, i) => {
+      const g = legendGroup.append("g")
+        .attr("transform", `translate(${41 + i * 50}, 113)`); // Horizontal spacing
+
+      g.append("circle")
+        .attr("r", item.size)
+        .attr("fill", "#FAB726")
+        .attr("opacity", 1);
+
+      g.append("text")
+        .attr("x", 0)
+        .attr("y", 28) // Position text below circle
+        .attr("text-anchor", "middle") // Center text under circle
+        .attr("fill", "white")
+        .attr("font-size", "11px")
+        .attr("font-family", "Inter, sans-serif")
+        .text(item.label);
+    });
+
     // Cleanup
     return () => {
       timelineBar.on("click", null);
