@@ -143,3 +143,26 @@ code {
 .profile-image:hover {
   filter: grayscale(0%);
 }
+
+@media (min-width: 768px) {
+  footer {
+    flex-direction: row !important;
+    width: 90vw;
+    justify-content: space-between;
+  }
+
+  footer > div {
+    width: auto !important;
+  }
+
+  footer > div:first-child {
+    flex: 1;
+    max-width: 40%;
+    text-align: left;
+    line-height: 1.2;
+  }
+
+  footer > div:last-child {
+    justify-content: flex-start !important;
+  }
+}

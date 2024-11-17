@@ -129,50 +129,87 @@ export default function Home() {
         }} />
 
         <footer style={{ 
-          padding: '60px 0',
+          padding: '30px 0',
           display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: '20px'
+          flexDirection: 'column-reverse', // Default for mobile
+          gap: '40px',
+          '@media (min-width: 768px)': {  // For desktop
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+          }
         }}>
-          <Image 
-            src="/images/profile.png"
-            alt="Kartik Tyagi"
-            width={72}
-            height={72}
-            className="profile-image"
-            priority
-          />
-          
+          {/* Disclaimer Section */}
+          <div style={{
+            width: '100%', // Full width on mobile
+            '@media (min-width: 768px)': {
+              flex: '1',
+              maxWidth: '60%',
+              lineHeight: '1.6'
+            }
+          }}>
+            <div className={inter.className} style={{
+              fontSize: '10px',
+              color: 'white',
+              opacity: 0.4,
+              
+            }}>
+              <strong>Disclaimer</strong><br /> <br />
+              The visualizations in this project are based on anonymized data provided by Groww and are intended for educational and informational purposes only. The data used represents only mainland India and excludes territories such as the Andaman and Nicobar Islands. While every effort has been made to ensure accuracy, minor discrepancies may exist due to data processing or technical factors. These visualizations are not intended to reflect exact trade values or patterns and should not be used for analytical or decision-making purposes. </div>
+          </div>
+
+          {/* Creator Section */}
           <div style={{ 
             display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-start',
-            gap: '4px'
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: '20px',
+            width: '100%', // Full width on mobile
+            justifyContent: 'center', // Center on mobile
+            '@media (min-width: 768px)': {
+              width: 'auto',
+              justifyContent: 'flex-start'
+            }
           }}>
-            <div className={instrumentSerif.className} style={{
-              fontSize: 'clamp(1.5rem, 2.5vw, 2.5rem)',
-              color: 'white',
-              lineHeight: '1.2'
-            }}>
-              Built with ❤️ and 🤖
-            </div>
-            <div className={inter.className} style={{
-              fontSize: 'clamp(1rem, 1.25vw, 1.5rem)',
-              color: '#808084',
+            <Image 
+              src="/images/profile.png"
+              alt="Kartik Tyagi"
+              width={72}
+              height={72}
+              className="profile-image"
+              priority
+            />
+            
+            <div style={{ 
               display: 'flex',
-              gap: '4px',
-              alignItems: 'center',
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+              gap: '4px'
             }}>
-              <span>by</span>
-              <a 
-                href="https://x.com/tkartik_me"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="groww-link"
-              >
-                Kartik Tyagi ↗︎
-              </a>
+              <div className={instrumentSerif.className} style={{
+                fontSize: 'clamp(1.5rem, 2.5vw, 2.5rem)',
+                color: 'white',
+                lineHeight: '1.2'
+              }}>
+                Built with ❤️ and 🤖
+              </div>
+              <div className={inter.className} style={{
+                fontSize: 'clamp(1rem, 1.25vw, 1.5rem)',
+                color: '#808084',
+                display: 'flex',
+                gap: '4px',
+                alignItems: 'center',
+              }}>
+                <span>by</span>
+                <a 
+                  href="https://x.com/tkartik_me"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="groww-link"
+                >
+                  Kartik Tyagi ↗︎
+                </a>
+              </div>
             </div>
           </div>
         </footer>

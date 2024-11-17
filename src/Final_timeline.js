@@ -608,7 +608,7 @@ const ExactLocationMap = () => {
   if (!tradeData) {
     return (
       <div style={{ 
-        width: '100vw', 
+        width: '100%', 
         height: '100vh',
         maxHeight: window.innerWidth,
        flexDirection:'column',
