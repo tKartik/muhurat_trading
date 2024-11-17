@@ -22,6 +22,12 @@ export default function Home() {
     <>
       <Head>
         <title>Muhurat Trading Visualization</title>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/Favicon_16x16.png" sizes="16x16" type="image/png" />
+        <link rel="icon" href="/Favicon_32x32.png" sizes="32x32" type="image/png" />
+
+        
+        <meta name="theme-color" content="#000000" />
         <meta name="description" content="Visualization of Muhurat Trading on Groww" />
       </Head>
 
