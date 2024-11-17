@@ -293,14 +293,18 @@ const ExactLocationMap = () => {
     // Add this debounce function near the top of your component
     const debounce = (func, wait) => {
       let timeout;
-      return function executedFunction(...args) {
+      function executedFunction(...args) {
         const later = () => {
           clearTimeout(timeout);
           func(...args);
         };
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
+      }
+      executedFunction.cancel = () => {
+        clearTimeout(timeout);
       };
+      return executedFunction;
     };
 
     // Split the position update into visual and data updates
@@ -308,7 +312,7 @@ const ExactLocationMap = () => {
       handle.attr("cx", position);
     };
 
-    // Debounce the heavy calculations
+    // Define debouncedUpdate for timeline clicks
     const debouncedUpdate = debounce((position) => {
       // Calculate time based on position
       const clickPosition = position / timelineWidth;
@@ -348,7 +352,36 @@ const ExactLocationMap = () => {
         .attr("height", textBBox.height + 16);
 
       timeText.attr("y", -(textBBox.height / 2));
-    }, 150); // Adjust this delay (in ms) as needed
+    }, 150);
+
+    // Split the visual updates into a separate function
+    const updateVisuals = (position) => {
+      // Update handle position
+      updateHandlePosition(position);
+
+      // Update timestamp display without data calculations
+      const clickPosition = position / timelineWidth;
+      const currentTime = startTime + (endTime - startTime) * clickPosition;
+      const timeString = new Date(currentTime).toLocaleTimeString([], { 
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      });
+
+      // Update timestamp text and position
+      timeText.attr("x", position).text(timeString);
+
+      // Update timestamp background
+      const textBBox = timeText.node().getBBox();
+      timeBackground
+        .attr("x", position - (textBBox.width / 2) - 12)
+        .attr("y", -textBBox.height - 8)
+        .attr("width", textBBox.width + 24)
+        .attr("height", textBBox.height + 16);
+
+      timeText.attr("y", -(textBBox.height / 2));
+    };
 
     // Modify the drag behavior
     const drag = d3.drag()
@@ -358,13 +391,16 @@ const ExactLocationMap = () => {
       .on("drag", function(event) {
         event.sourceEvent.stopPropagation();
         const position = Math.max(0, Math.min(event.x, timelineWidth));
-        updateHandlePosition(position);
-        debouncedUpdate(position);
+        // Update visuals during drag
+        updateVisuals(position);
       })
       .on("end", function(event) {
         handle.attr("fill", "#FFFFFF");
         const position = Math.max(0, Math.min(event.x, timelineWidth));
-        debouncedUpdate.flush?.(position); // Immediately update on drag end
+        // Cancel any pending updates
+        debouncedUpdate.cancel?.();
+        // Use debouncedUpdate for data update
+        debouncedUpdate(position);
       });
 
     // Update the timeline click behavior
