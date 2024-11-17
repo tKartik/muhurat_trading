@@ -522,88 +522,25 @@ const ExactLocationMap = () => {
 
     // Add legend to mapGroup
     const legendGroup = mapGroup.append("g")
-      .attr("transform", `translate(${paddedWidth - 180}, 0)`);
+      .attr("transform", `translate(${paddedWidth - 150}, 0)`);
 
-    // Add background for legend
+    // Add background for legend (with fixed smaller height)
     const legendBackground = legendGroup.append("rect")
-      .attr("width", 180)
-      .attr("height", 170) // Full height
+      .attr("width", 150)
+      .attr("height", 60) // Reduced height since we're removing trade amount section
       .attr("fill", "#0F0F15")
       .attr("rx", 20)
       .attr("opacity", 0.9);
 
-    // Add minimize/maximize button
-    const toggleButton = legendGroup.append("g")
-      .style("cursor", "pointer")
-      .attr("transform", "translate(155, 25)"); // Position in top-right corner
-
-    // Add button background
-    toggleButton.append("circle")
-      .attr("r", 12)
-      .attr("fill", "#2D2D64")
-      .attr("opacity", 0.5);
-
-    // Add minimize/maximize icon (starts as minimize)
-    const buttonIcon = toggleButton.append("path")
-      .attr("fill", "white")
-      .attr("d", "M-5,0 L5,0") // Horizontal line for minimize
-      .attr("stroke", "white")
-      .attr("stroke-width", "2")
-      .attr("opacity", 0.8);
-
-    // Add "Legend" text (initially hidden)
-    const legendText = legendGroup.append("text")
-      .attr("x", 23)
-      .attr("y", 30)
-      .attr("fill", "white")
-      .attr("font-size", "14px")
-      .attr("font-family", "Inter, sans-serif")
-      .text("Legend")
-      .style("opacity", 0); // Start hidden
-
-    // Create group for legend content (everything except the button)
-    const legendContent = legendGroup.append("g")
-      .attr("class", "legend-content");
-
-    // Add toggle functionality
-    let isMinimized = false;
-    toggleButton.on("click", () => {
-      isMinimized = !isMinimized;
-      
-      // Update background height
-      legendBackground.transition()
-        .duration(300)
-        .attr("height", isMinimized ? 50 : 170);
-
-      // Update icon
-      buttonIcon.transition()
-        .duration(300)
-        .attr("d", isMinimized 
-          ? "M-4,-3 L0,3 L4,-3 Z" // Maximize icon (arrow up)
-          : "M-5,0 L5,0" // Minimize icon (horizontal line)
-        );
-
-      // Show/hide content
-      legendContent.transition()
-        .duration(300)
-        .style("opacity", isMinimized ? 0 : 1)
-        .style("pointer-events", isMinimized ? "none" : "all");
-
-      // Show/hide "Legend" text
-      legendText.transition()
-        .duration(300)
-        .style("opacity", isMinimized ? 1 : 0);
-    });
-
-    // Add your existing legend content here
+    // Add your legend content
     const colorLegend = [
       { label: "Buy", color: "#FAB726" },
       { label: "Sell", color: "#5D43E6" }
     ];
 
     colorLegend.forEach((item, i) => {
-      const g = legendContent.append("g")
-        .attr("transform", `translate(30, ${30 + i * 25})`);
+      const g = legendGroup.append("g")
+        .attr("transform", `translate( ${30 + i * 60},30)`);
 
       g.append("circle")
         .attr("r", 6)
@@ -617,42 +554,6 @@ const ExactLocationMap = () => {
         .attr("opacity", 0.8)
         .attr("font-size", "12px")
         .attr("font-family", "Inter, sans-serif")
-        .text(item.label);
-    });
-
-    // Size legend title
-    legendContent.append("text")
-      .attr("x", 23)
-      .attr("y", 90)
-      .attr("fill", "white")
-      .attr("font-size", "13px")
-      .attr("font-family", "Inter, sans-serif")
-      .text("Trade Amount");
-
-    // Size legend circles
-    const sizeLegend = [
-      { label: "₹1L+", size: 14 },
-      { label: "₹10K", size: 8 },
-      { label: "₹1K", size: 4 }
-    ];
-
-    sizeLegend.forEach((item, i) => {
-      const g = legendContent.append("g")
-        .attr("transform", `translate(${39 + i * 50}, 116)`); // Horizontal spacing
-
-      g.append("circle")
-        .attr("r", 6)
-        .attr("fill", "#FAB726")
-        .attr("opacity", 0.8);
-
-      g.append("text")
-        .attr("x", 0)
-        .attr("y", 31) // Position text below circle
-        .attr("text-anchor", "middle") // Center text under circle
-        .attr("fill", "white")
-        .attr("font-size", "11px")
-        .attr("font-family", "Inter, sans-serif")
-        .attr("opacity", 0.8)
         .text(item.label);
     });
 
