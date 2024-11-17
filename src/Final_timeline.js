@@ -4,7 +4,7 @@ import { feature } from 'topojson-client';
 import boundaryData from './data/India ADM1 GeoBoundaries.json';
 
 import * as d3 from 'd3';
-import FlashingStatesMap from './FlashingStatesMap';
+import FlashingStatesMap from './flashingStatesMap';
 
 const ExactLocationMap = () => {
   const svgRef = useRef(null);
