@@ -45,7 +45,7 @@ export default function Home() {
         
         <div style={{ maxWidth: '1200px', width: '100%', margin: '0 auto' }}>
           <h1 className={instrumentSerif.className} style={{ 
-            fontSize: 'clamp(2.5rem, 7vw, 5.625rem)',
+            fontSize: 'clamp(3rem, 7vw, 5.625rem)',
             fontWeight: 400,
             marginBottom: 'clamp(1rem, 3vw, 2rem)',
             color: 'white',

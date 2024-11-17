@@ -63,16 +63,23 @@ const ExactLocationMap = () => {
     const width = wrapperRef.current.clientWidth;
     const padding = 0.15;
     const timelineHeight = 100;
-    const spacingFromMap = 60; // Spacing between map and timeline
+    const spacingFromMap = 60;
 
     // Calculate the padded dimensions
     const paddedWidth = width * (1 - padding);
-    const paddedHeight = window.innerHeight * 0.9 * (1 - padding);
-    const paddingHeight = window.innerHeight * 0.9 * padding;
+    let paddedHeight = window.innerHeight * 0.9 * (1 - padding);
+    const paddingWidth = width * padding;
+    let paddingHeight = window.innerHeight * 0.9 * padding;
 
-    const totalHeight = window.innerHeight * 0.9 + timelineHeight + spacingFromMap; // Total height including space for timeline
+    // If paddedHeight is smaller than paddedWidth, make them equal
+    if (paddedWidth < paddedHeight) {
+      paddedHeight = paddedWidth;
+      paddingHeight = paddingWidth;
+    }
 
-    // Create SVG
+    const totalHeight = paddedHeight + paddingHeight + timelineHeight + spacingFromMap;
+
+    // Create SVG with adjusted height
     const svg = select(svgRef.current)
       .attr("width", width)
       .attr("height", totalHeight)
@@ -448,24 +455,85 @@ const ExactLocationMap = () => {
     const legendGroup = mapGroup.append("g")
       .attr("transform", `translate(${paddedWidth - 180}, 0)`);
 
-    // Add background for legend - adjust height since layout is now more compact
-    legendGroup.append("rect")
+    // Add background for legend
+    const legendBackground = legendGroup.append("rect")
       .attr("width", 180)
-      .attr("height", 170) // Reduced height
+      .attr("height", 170) // Full height
       .attr("fill", "#0F0F15")
       .attr("rx", 20)
-      // .attr("stroke", "#2D2D64")
-      // .attr("stroke-width", 1)
       .attr("opacity", 0.9);
 
-    // Add color legend items
+    // Add minimize/maximize button
+    const toggleButton = legendGroup.append("g")
+      .style("cursor", "pointer")
+      .attr("transform", "translate(155, 25)"); // Position in top-right corner
+
+    // Add button background
+    toggleButton.append("circle")
+      .attr("r", 12)
+      .attr("fill", "#2D2D64")
+      .attr("opacity", 0.5);
+
+    // Add minimize/maximize icon (starts as minimize)
+    const buttonIcon = toggleButton.append("path")
+      .attr("fill", "white")
+      .attr("d", "M-5,0 L5,0") // Horizontal line for minimize
+      .attr("stroke", "white")
+      .attr("stroke-width", "2")
+      .attr("opacity", 0.8);
+
+    // Add "Legend" text (initially hidden)
+    const legendText = legendGroup.append("text")
+      .attr("x", 23)
+      .attr("y", 30)
+      .attr("fill", "white")
+      .attr("font-size", "14px")
+      .attr("font-family", "Inter, sans-serif")
+      .text("Legend")
+      .style("opacity", 0); // Start hidden
+
+    // Create group for legend content (everything except the button)
+    const legendContent = legendGroup.append("g")
+      .attr("class", "legend-content");
+
+    // Add toggle functionality
+    let isMinimized = false;
+    toggleButton.on("click", () => {
+      isMinimized = !isMinimized;
+      
+      // Update background height
+      legendBackground.transition()
+        .duration(300)
+        .attr("height", isMinimized ? 50 : 170);
+
+      // Update icon
+      buttonIcon.transition()
+        .duration(300)
+        .attr("d", isMinimized 
+          ? "M-4,-3 L0,3 L4,-3 Z" // Maximize icon (arrow up)
+          : "M-5,0 L5,0" // Minimize icon (horizontal line)
+        );
+
+      // Show/hide content
+      legendContent.transition()
+        .duration(300)
+        .style("opacity", isMinimized ? 0 : 1)
+        .style("pointer-events", isMinimized ? "none" : "all");
+
+      // Show/hide "Legend" text
+      legendText.transition()
+        .duration(300)
+        .style("opacity", isMinimized ? 1 : 0);
+    });
+
+    // Add your existing legend content here
     const colorLegend = [
       { label: "Buy", color: "#FAB726" },
       { label: "Sell", color: "#5D43E6" }
     ];
 
     colorLegend.forEach((item, i) => {
-      const g = legendGroup.append("g")
+      const g = legendContent.append("g")
         .attr("transform", `translate(30, ${30 + i * 25})`);
 
       g.append("circle")
@@ -483,14 +551,8 @@ const ExactLocationMap = () => {
         .text(item.label);
     });
 
-    // Add size legend
-    const sizeLegend = [
-      { label: "₹1L+", size: 14 },
-      { label: "₹10K", size: 8 },
-      { label: "₹1K", size: 4 }
-    ];
-
-    legendGroup.append("text")
+    // Size legend title
+    legendContent.append("text")
       .attr("x", 23)
       .attr("y", 90)
       .attr("fill", "white")
@@ -498,8 +560,15 @@ const ExactLocationMap = () => {
       .attr("font-family", "Inter, sans-serif")
       .text("Trade Amount");
 
+    // Size legend circles
+    const sizeLegend = [
+      { label: "₹1L+", size: 14 },
+      { label: "₹10K", size: 8 },
+      { label: "₹1K", size: 4 }
+    ];
+
     sizeLegend.forEach((item, i) => {
-      const g = legendGroup.append("g")
+      const g = legendContent.append("g")
         .attr("transform", `translate(${39 + i * 50}, 116)`); // Horizontal spacing
 
       g.append("circle")
