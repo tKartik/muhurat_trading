@@ -21,8 +21,8 @@ const FlashingStatesMap = () => {
     select(svgRef.current).selectAll("*").remove();
 
     // Set up dimensions
-    const width = wrapperRef.current.clientWidth; // Full width of the wrapper
-    const height = window.innerHeight * 0.8; // 80% of the viewport height
+    const width = 280; // Fixed width
+    const height = 280; // Fixed height
     const padding = 0.05; // 5% padding
 
     // Calculate the padded dimensions
@@ -37,7 +37,7 @@ const FlashingStatesMap = () => {
     const svg = select(svgRef.current)
       .attr("width", width)
       .attr("height", height)
-      .style("background-color", "#262626");
+      // .style("background-color", "#262626");
 
     // Create projection
     const projection = geoMercator()
@@ -57,18 +57,13 @@ const FlashingStatesMap = () => {
       .enter()
       .append("path")
       .attr("d", pathGenerator)
-      .attr("fill", "#262626")
-      .attr("stroke", "#262626")
+      .attr("fill", "#02020A")
+      .attr("stroke", "#02020A")
       .attr("stroke-width", 0.5)
       .attr("id", d => d.properties.shapeName) 
       .attr("class", "state");
 
-    // Display current time
-    const timeDisplay = svg.append("text")
-      .attr("x", 20)
-      .attr("y", 20)
-      .attr("font-size", "24px")
-      .attr("fill", "white");
+
 
     const stateNames = geojson.features.map(feature => 
       feature.properties.shapeName
@@ -77,16 +72,10 @@ const FlashingStatesMap = () => {
     // Replace updateTrades function with random flashing
     const updateStates = () => {
       // Update time display
-      const currentDate = new Date();
-      const timeString = currentDate.toLocaleTimeString([], { 
-        hour: '2-digit', 
-        minute: '2-digit', 
-        second: '2-digit' 
-      });
-      timeDisplay.text(`Time: ${timeString}`);
+
 
       // Randomly select 1-3 states to flash
-      const numberOfStates = Math.floor(Math.random() * 3) + 1;
+      const numberOfStates = Math.floor(Math.random() * 10) + 1;
       for (let i = 0; i < numberOfStates; i++) {
         const randomState = stateNames[Math.floor(Math.random() * stateNames.length)];
         const randomType = Math.random() > 0.5 ? 'B' : 'S';
@@ -119,7 +108,7 @@ const FlashingStatesMap = () => {
           .on("end", () => {
             statePath.transition()
               .duration(500)
-              .attr("fill", "#262626")
+              .attr("fill", "#02020A")
               .style("mix-blend-mode", "normal");
           });
       }
@@ -131,10 +120,12 @@ const FlashingStatesMap = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-4">
-      <div ref={wrapperRef} className="relative w-full" >
+      <div ref={wrapperRef} className="relative w-[280px]" >
         <svg
           ref={svgRef}
-          className="absolute top-0 left-0 w-full h-full"
+          className="absolute top-0 left-0"
+          width="280"
+          height="280"
           preserveAspectRatio="xMidYMid meet"
         />
       </div>

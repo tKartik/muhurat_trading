@@ -1,20 +1,57 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { select, geoPath, geoMercator, geoCentroid, pointer } from 'd3';
 import { feature } from 'topojson-client';
 import boundaryData from './data/India ADM1 GeoBoundaries.json';
 
-import tradeData from './data/grouped_trades_final_3.json';
 import * as d3 from 'd3';
+import FlashingStatesMap from './FlashingStatesMap';
 
 const ExactLocationMap = () => {
   const svgRef = useRef(null);
   const wrapperRef = useRef(null);
   const [currentTimeState, setCurrentTimeState] = React.useState(null);
   const [currentPosition, setCurrentPosition] = React.useState(null);
+  const [tradeData, setTradeData] = useState(null);
+  const [loading, setLoading] = useState(0);
 
-  // First useEffect for initialization
+  // Modify the data fetching useEffect
   useEffect(() => {
-    if (!svgRef.current || !wrapperRef.current) return;
+    const fetchData = () => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', 'https://muhurat-trading.s3.eu-north-1.amazonaws.com/data-muhurat/grouped_trades_final_3.json', true);
+      
+      xhr.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = Math.round((event.loaded / event.total) * 100);
+          setLoading(percentComplete);
+        }
+      };
+
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          const data = JSON.parse(xhr.responseText);
+          setTradeData(data);
+          setLoading(100);
+        } else {
+          console.error('Error fetching trade data:', xhr.statusText);
+          setLoading(-1);
+        }
+      };
+
+      xhr.onerror = function() {
+        console.error('Error fetching trade data');
+        setLoading(-1);
+      };
+
+      xhr.send();
+    };
+
+    fetchData();
+  }, []);
+
+  // Modify the initialization useEffect to depend on tradeData
+  useEffect(() => {
+    if (!svgRef.current || !wrapperRef.current || !tradeData) return;
 
     // Get timeKeys once
     const timeKeys = Object.keys(tradeData).sort();
@@ -38,11 +75,11 @@ const ExactLocationMap = () => {
       setCurrentPosition(initialPosition);
       setCurrentTimeState(randomTime);
     }
-  }, []); // Run once on mount
+  }, [tradeData]);
 
-  // Main useEffect for rendering
+  // Modify the main rendering useEffect to depend on tradeData
   useEffect(() => {
-    if (!svgRef.current || !wrapperRef.current) return;
+    if (!svgRef.current || !wrapperRef.current || !tradeData) return;
 
     // Directly convert TopoJSON to GeoJSON
     const geojson = feature(
@@ -565,7 +602,43 @@ const ExactLocationMap = () => {
       handle.on("mouseout", null);
       tooltip.remove();
     };
-  }, [currentTimeState, currentPosition]); // Dependencies
+  }, [currentTimeState, currentPosition, tradeData]); // Dependencies
+
+  // Modified loading screen component
+  if (!tradeData) {
+    return (
+      <div style={{ 
+        width: '100vw', 
+        height: '100vh',
+        maxHeight: window.innerWidth,
+       flexDirection:'column',
+       gap:'3rem',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}>
+        <div className="mb-8" >
+          <FlashingStatesMap />
+        </div>
+        
+        <div className="text-center">
+          <div className="text-2xl font-semibold mb-4" style={{color:"white"}}>
+            {loading === -1 ? (
+              "Error loading data"
+            ) : (
+              `Loading... ${loading}%`
+            )}
+          </div>
+          <div className="w-64 h-2 bg-gray-200 rounded-full">
+            <div 
+              className="h-full bg-blue-600 rounded-full transition-all duration-300"
+              style={{ width: `${loading}%` }}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-4">

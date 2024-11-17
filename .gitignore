@@ -8,13 +8,14 @@
 
 /src/data/grouped_trades_final_2_cleaned.json
 /src/data/grouped_trades_final_3.json
+/src/data/India ADM2 GeoBoundaries.json
 /src/data/India ADM0.json
 /src/data/India ADM1.json
 /src/svg_local_data_backup.js
-/src/svg method.js
+/src/video.js
 /src/Exact_location_topojson_canvas_2.js
 /src/Exact_location_topojson_canvas_aws.js
-/src/video.js
+/src/svg method.js
 /src/Timeline_backup.js
 
 # testing
