@@ -4,7 +4,7 @@ import './index.css';
 
 
 import ExactLocationMap from "./Final_timeline.js";
-import ExactLocationMapNew from "./video.js";
+// import ExactLocationMapNew from "./video.js";
 
 import FlashingStatesMap from "./flashingStatesMap.js"; 
 import WebFont from 'webfontloader';
@@ -21,7 +21,7 @@ const MapToggle = () => {
   return (
     <div style={{ textAlign: 'center', width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
       <div style={{ marginBottom: '24px' }}></div>
-      <ExactLocationMap />
+      <FlashingStatesMap />
     </div>
   );
 };

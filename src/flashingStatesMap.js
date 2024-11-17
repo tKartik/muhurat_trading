@@ -1,6 +1,7 @@
+import { feature } from 'topojson-client';
 import React, { useEffect, useRef } from 'react';
-import { select, geoPath, geoMercator, geoCentroid, color } from 'd3';
-import boundaryData from './data/India ADM1.json';
+import { select, geoPath, geoMercator, geoCentroid } from 'd3';
+import boundaryData from './data/India ADM1 GeoBoundaries.json';
 
 const FlashingStatesMap = () => {
   const svgRef = useRef(null);
@@ -9,6 +10,13 @@ const FlashingStatesMap = () => {
   useEffect(() => {
     if (!svgRef.current || !wrapperRef.current) return;
 
+    // Convert TopoJSON to GeoJSON
+    const geojson = feature(
+      boundaryData, 
+      boundaryData.objects[Object.keys(boundaryData.objects)[0]]
+    );
+
+    console.log(geojson);
     // Clear previous content
     select(svgRef.current).selectAll("*").remove();
 
@@ -22,7 +30,7 @@ const FlashingStatesMap = () => {
     const paddedHeight = height * (1 - padding);
 
     // Calculate the centroid of the geographical features
-    const centroid = geoCentroid(boundaryData);
+    const centroid = geoCentroid(geojson);
     // console.log(centroid);
 
     // Create SVG
@@ -34,7 +42,7 @@ const FlashingStatesMap = () => {
     // Create projection
     const projection = geoMercator()
       .center(centroid)
-      .fitSize([paddedWidth, paddedHeight], boundaryData);
+      .fitSize([paddedWidth, paddedHeight], geojson);
 
     // Create path generator
     const pathGenerator = geoPath().projection(projection);
@@ -45,14 +53,14 @@ const FlashingStatesMap = () => {
 
     // Draw the boundary and set unique IDs by replacing spaces with hyphens
     mapGroup.selectAll("path")
-      .data(boundaryData.features)
+      .data(geojson.features)
       .enter()
       .append("path")
       .attr("d", pathGenerator)
       .attr("fill", "#262626")
       .attr("stroke", "#262626")
       .attr("stroke-width", 0.5)
-      .attr("id", d => d.properties.st_nm.replace(/\s+/g, '-')) // Replace spaces with hyphens
+      .attr("id", d => d.properties.shapeName) 
       .attr("class", "state");
 
     // Display current time
@@ -62,8 +70,8 @@ const FlashingStatesMap = () => {
       .attr("font-size", "24px")
       .attr("fill", "white");
 
-    const stateNames = boundaryData.features.map(feature => 
-      feature.properties.st_nm.replace(/\s+/g, '-')
+    const stateNames = geojson.features.map(feature => 
+      feature.properties.shapeName
     );
 
     // Replace updateTrades function with random flashing

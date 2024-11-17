@@ -290,38 +290,26 @@ const ExactLocationMap = () => {
         hour12: true
       }));
 
-    // Add this debounce function near the top of your component
-    const debounce = (func, wait) => {
-      let timeout;
-      return function executedFunction(...args) {
-        const later = () => {
-          clearTimeout(timeout);
-          func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-      };
-    };
-
-    // Split the position update into visual and data updates
-    const updateHandlePosition = (position) => {
-      handle.attr("cx", position);
-    };
-
-    // Debounce the heavy calculations
-    const debouncedUpdate = debounce((position) => {
-      // Calculate time based on position
-      const clickPosition = position / timelineWidth;
-      const clickedTime = startTime + (endTime - startTime) * clickPosition;
+    // Function to update visualization based on position
+    const updatePosition = (position) => {
+      // Constrain position to timeline width
+      const constrainedPosition = Math.max(0, Math.min(position, timelineWidth));
       
-      // Find nearest timestamp
+      // Update handle position
+      handle.attr("cx", constrainedPosition);
+      
+      // Calculate time based on position
+      const timePosition = constrainedPosition / timelineWidth;
+      const currentTime = Math.round(startTime + (endTime - startTime) * timePosition);
+      
+      // Find nearest available timestamp
       const nearestTime = timeKeys.reduce((prev, curr) => {
-        return Math.abs(curr - clickedTime) < Math.abs(prev - clickedTime) ? curr : prev;
+        return Math.abs(curr - currentTime) < Math.abs(prev - currentTime) ? curr : prev;
       });
 
-      // Update states
+      // Update state
       setCurrentTimeState(nearestTime);
-      setCurrentPosition(position);
+      setCurrentPosition(constrainedPosition);
       
       // Clear and render new circles
       circlesGroup.selectAll("circle").remove();
@@ -329,7 +317,7 @@ const ExactLocationMap = () => {
         tradeData[nearestTime].forEach(trade => renderCircle(trade));
       }
 
-      // Update timestamp display
+      // Create time string for display
       const timeString = new Date(parseInt(nearestTime)).toLocaleTimeString([], { 
         hour: 'numeric',
         minute: '2-digit',
@@ -337,69 +325,86 @@ const ExactLocationMap = () => {
         hour12: true
       });
 
-      timeText.attr("x", position).text(timeString);
+      // Update timestamp text and position
+      timeText
+        .attr("x", constrainedPosition)
+        .text(timeString);
 
-      // Update timestamp background
+      // Get text dimensions
       const textBBox = timeText.node().getBBox();
+      // Update background rectangle size and position
       timeBackground
-        .attr("x", position - (textBBox.width / 2) - 12)
-        .attr("y", -textBBox.height - 8)
+        .attr("x", constrainedPosition - (textBBox.width / 2) - 12)
+        .attr("y", -textBBox.height - 8) // Adjust vertical position
         .attr("width", textBBox.width + 24)
         .attr("height", textBBox.height + 16);
 
-      timeText.attr("y", -(textBBox.height / 2));
-    }, 150); // Adjust this delay (in ms) as needed
+      // Position text vertically centered in background
+      timeText
+        .attr("y", -(textBBox.height / 2));
 
-    // Modify the drag behavior
+      // Move timestamp display group
+      timestampDisplay
+        .attr("transform", `translate(0, -20)`);
+    };
+
+    // Set up drag behavior
     const drag = d3.drag()
       .on("start", function() {
-        handle.attr("fill", "#cccccc");
+        const handle = d3.select(this);
+        handle.style("cursor", "grabbing");
+        // Store initial position
+        handle.attr("data-x", handle.attr("cx"));
       })
       .on("drag", function(event) {
-        event.sourceEvent.stopPropagation();
-        const position = Math.max(0, Math.min(event.x, timelineWidth));
-        updateHandlePosition(position);
-        debouncedUpdate(position);
+        const handle = d3.select(this);
+        // Get stored position and add the change in x
+        const currentX = parseFloat(handle.attr("data-x")) || 0;
+        const newX = currentX + event.dx;
+        
+        // Constrain position within timeline bounds
+        const position = Math.max(0, Math.min(newX, timelineWidth));
+        
+        // Store new position
+        handle.attr("data-x", position);
+        
+        updatePosition(position);
       })
-      .on("end", function(event) {
-        handle.attr("fill", "#FFFFFF");
-        const position = Math.max(0, Math.min(event.x, timelineWidth));
-        debouncedUpdate.flush?.(position); // Immediately update on drag end
+      .on("end", function() {
+        const handle = d3.select(this);
+        handle.style("cursor", "grab");
+        // Clean up stored position
+        handle.attr("data-x", null);
       });
 
-    // Update the timeline click behavior
-    timelineBar.on("click", function(event) {
-      // Only update if clicking directly on the timeline bar
-      if (event.target === this) {
-        const [x] = pointer(event);
-        const position = Math.max(0, Math.min(x, timelineWidth));
-        updateHandlePosition(position);
-        debouncedUpdate(position);
-      }
-    });
-
-    // Update the handle behavior
+    // Apply drag only to handle
     handle
-      .call(drag)
       .style("cursor", "grab")
-      .on("mouseover", null)  // Remove any mouseover events
-      .on("mouseout", null);  // Remove any mouseout events
+      .call(drag);
+
+    // Separate click handler for timeline bar
+    timelineBar
+      .style("cursor", "pointer")
+      .on("click", function(event) {
+        if (event.defaultPrevented) return;
+        
+        const [xPos] = d3.pointer(event, this);
+        const position = Math.max(0, Math.min(xPos, timelineWidth));
+        updatePosition(position);
+      });
 
     // Disable pointer events on circles to prevent interference
     circlesGroup.style("pointer-events", "none");
 
     // Initial position update if we have one
     if (currentPosition !== null) {
-      updateHandlePosition(currentPosition);
-      debouncedUpdate(currentPosition);
+      updatePosition(currentPosition);
     }
 
     // Cleanup
     return () => {
-      timelineBar.on("click", null);
       handle.on(".drag", null);
-      handle.on("mouseover", null);
-      handle.on("mouseout", null);
+      timelineBar.on("click", null);
     };
   }, [currentTimeState, currentPosition]); // Dependencies
 
