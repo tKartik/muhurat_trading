@@ -56,7 +56,8 @@ export default function Home() {
             marginBottom: 'clamp(1rem, 3vw, 2rem)',
             color: 'white',
             letterSpacing: '-0.02em',
-            lineHeight: '1.1'
+            lineHeight: '1.1',
+            marginTop: '20vh'
           }}>
             How India traded during<br/>
             <span style={{ 
@@ -72,11 +73,7 @@ export default function Home() {
             }}>Muhurat '24</span> on Groww
           </h1>
           
-          <p className={`${inter.className} subtext`}
-            style={{ 
-              margin: '0 auto clamp(2rem, 5vw, 3rem)',
-              padding: '0 clamp(1rem, 3vw, 2rem)',
-            }}>
+          <p className={`${inter.className} subtext`}>
             Muhurat Trading is a special trading session conducted in the Indian stock markets during Diwali, 
             symbolizing prosperity and wealth. Inspired by the{" "}
             <span className="diwali-text">
@@ -102,6 +99,11 @@ export default function Home() {
               Groww↗︎
             </a>
           </p>
+          <div style={{marginTop:'10rem'}}>
+            <h2 className={`${instrumentSerif.className} header`}>1.3 Million</h2>
+          <p className='subtext'>1.3 million trades in just one hour—72% of the daily average of 1.8 
+            million—highlight the remarkable activity of Muhurat Trading, which you
+            can explore further in the interactive data visualization below.</p></div>
         </div>
 
         <MapToggle />
@@ -110,9 +112,7 @@ export default function Home() {
           <h2 className={`${instrumentSerif.className} header`}>
             Timelapse of the entire trading session
           </h2>
-          <p className={`${inter.className} subtext`}>
-            To visualize density of trades in the entire session
-          </p>
+       
           
           
           <div className="video-container">

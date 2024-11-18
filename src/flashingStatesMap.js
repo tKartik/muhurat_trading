@@ -2,6 +2,7 @@ import { feature } from 'topojson-client';
 import React, { useEffect, useRef } from 'react';
 import { select, geoPath, geoMercator, geoCentroid } from 'd3';
 import boundaryData from './data/India ADM1 GeoBoundaries.json';
+import { toBeInTheDOM } from '@testing-library/jest-dom/dist/matchers';
 
 const FlashingStatesMap = () => {
   const svgRef = useRef(null);
@@ -16,18 +17,29 @@ const FlashingStatesMap = () => {
       boundaryData.objects[Object.keys(boundaryData.objects)[0]]
     );
 
-    console.log(geojson);
     // Clear previous content
     select(svgRef.current).selectAll("*").remove();
 
-    // Set up dimensions
-    const width = 280; // Fixed width
-    const height = 280; // Fixed height
-    const padding = 0.05; // 5% padding
+ // Set up dimensions
+    const width = window.innerWidth;
+    const padding = 0.15;
+  
 
     // Calculate the padded dimensions
     const paddedWidth = width * (1 - padding);
-    const paddedHeight = height * (1 - padding);
+    let paddedHeight = window.innerHeight * 0.9 * (1 - padding);
+    const paddingWidth = width * padding;
+    let paddingHeight = window.innerHeight * 0.9 * padding;
+
+    // If paddedHeight is smaller than paddedWidth, make them equal
+    if (paddedWidth < paddedHeight) {
+      paddedHeight = paddedWidth;
+      paddingHeight = paddingWidth;
+    }
+
+    const totalHeight = paddedHeight + paddingHeight ;
+
+
 
     // Calculate the centroid of the geographical features
     const centroid = geoCentroid(geojson);
@@ -36,8 +48,10 @@ const FlashingStatesMap = () => {
     // Create SVG
     const svg = select(svgRef.current)
       .attr("width", width)
-      .attr("height", height)
+      .attr("height", totalHeight)
       // .style("background-color", "#262626");
+
+    console.log(width,totalHeight);
 
     // Create projection
     const projection = geoMercator()
@@ -48,7 +62,7 @@ const FlashingStatesMap = () => {
     const pathGenerator = geoPath().projection(projection);
 
     const mapGroup = svg.append("g")
-      .attr("transform", `translate(${(width - paddedWidth) / 2}, ${(height - paddedHeight) / 2})`); // Center the map group
+      .attr("transform", `translate(${(width - paddedWidth) / 2}, ${paddingHeight / 2})`);
 
 
     // Draw the boundary and set unique IDs by replacing spaces with hyphens
@@ -104,7 +118,7 @@ const FlashingStatesMap = () => {
           .style("mix-blend-mode", "normal")
           .transition()
           .duration(500)
-          .attr("fill", "#FFFFFF")  // Simple white color
+          .attr("fill", "#e6e6e6")  // Simple white color
           .on("end", () => {
             statePath.transition()
               .duration(500)
@@ -121,11 +135,9 @@ const FlashingStatesMap = () => {
   return (
     <div className="max-w-4xl mx-auto p-4">
       <div ref={wrapperRef} className="relative w-[280px]" >
-        <svg
+      <svg
           ref={svgRef}
-          className="absolute top-0 left-0"
-          width="280"
-          height="280"
+          // className="w-full"
           preserveAspectRatio="xMidYMid meet"
         />
       </div>

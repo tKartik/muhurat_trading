@@ -5,6 +5,12 @@ import boundaryData from './data/India ADM1 GeoBoundaries.json';
 
 import * as d3 from 'd3';
 import FlashingStatesMap from './flashingStatesMap';
+import { Instrument_Serif } from 'next/font/google';
+
+const instrumentSerif = Instrument_Serif({ 
+  weight: '400',
+  subsets: ['latin'],
+});
 
 const ExactLocationMap = () => {
   const svgRef = useRef(null);
@@ -617,12 +623,13 @@ const ExactLocationMap = () => {
         justifyContent: 'center',
         alignItems: 'center'
       }}>
-        <div className="mb-8" >
-          <FlashingStatesMap />
-        </div>
+        
         
         <div className="text-center">
-          <div className="text-2xl font-semibold mb-4" style={{color:"white"}}>
+          <div 
+            className={`text-2xl font-semibold mb-4 ${instrumentSerif.className}`} 
+            style={{color:"white",fontSize:"1.5rem",opacity:"0.7"}}
+          >
             {loading === -1 ? (
               "Error loading data"
             ) : (
@@ -635,6 +642,9 @@ const ExactLocationMap = () => {
               style={{ width: `${loading}%` }}
             />
           </div>
+        </div>
+        <div  >
+          <FlashingStatesMap />
         </div>
       </div>
     );
